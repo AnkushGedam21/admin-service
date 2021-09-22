@@ -1,38 +1,40 @@
 package com.ct.admin.utility;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
+public class Staff extends User {
 
-public class Staff {
+//	@Id
+//	@GeneratedValue(strategy = GenerationType.IDENTITY)
+//	@Column(name = "staff_id")
+//	private long staffId;
 
+	private Integer roleId;
 
-	private long staffId;
-	private int role_id;
-	private int empId;
+	private Integer empId;
 
-	private String title;
-	private String firstName;
-	private String lastName;
-	private String email;
-	private java.util.Date birthDate;
+//	private String title;
+//	private String firstName;
+//	private String lastName;
+//	private String email;
+//	private Date birthDate;
 
-	private String username;
-	private String password;
-	private boolean deleted;
-	private String status ;
-	private java.util.Date createdOn;
-	private java.util.Date updatedOn;
+//	private String username;
+//	private String password;
+//	private boolean deleted;
+//	private boolean active;
+
+//	@CreationTimestamp
+//	private java.util.Date createdOn;
+//
+//	@UpdateTimestamp
+//	private java.util.Date updatedOn;
 }
