@@ -115,7 +115,12 @@ public class AdminController {
 			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
+
+	/*
+	 * It is a admin controller method 
+	 * which accept the put request to edit the
+	 * patient status
+	 */
 	@PutMapping("patient/editstatus")
 	public ResponseEntity<?> editPatientStatus(@RequestBody List<Patient> allPatient){
 		log.info("Inside Admin Controller to edit patient status");
@@ -128,6 +133,12 @@ public class AdminController {
 			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+
+	/*
+	 * This method is responsible for accepting the request to edit the employee
+	 * status
+	 * and return the Http status
+	 */
 	@PutMapping("employee/editstatus")
 	public ResponseEntity<?> editEmployeeStatus(@RequestBody List<Staff> allEmployee){
 		log.info("Inside Admin Controller to edit employee status");
