@@ -1,26 +1,25 @@
 package com.ct.admin.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
 import com.ct.admin.utility.Patient;
 import com.ct.admin.utility.Staff;
 import com.ct.admin.utility.UserDto;
 
 import lombok.extern.slf4j.Slf4j;
+
+/* 
+ * author Ankush Gedam
+ * This is Admin Service 
+ which will take care of
+ all the acticity of admin service
+ this class is implementation of adminservice
+ */
 
 @Service
 @Slf4j
@@ -52,27 +51,11 @@ public class AdminServiceImpl implements AdminService{
 		String response = generalService.sendMail(patient.getEmail());
 		log.info(response);
 	}
-	@Override
-	public void editPatientStatus(long[] allPatientId, String[] allPatientStatus) {
-		for(int i =0; i<allPatientId.length;i++) {
-			if(allPatientId[i] != 0 && allPatientStatus[i] != "") {
-				Patient patient = new Patient();
-				patient.setUserId(allPatientId[i]);
-				patient.setStatus(allPatientStatus[i]);
-				restTemplate.put(userServiceURL+"patient/editpatientstatus", patient);
-			}
-		}
-		
-		 
-	}
 	
 	@Override
 	public List<Long> getPatientCount() {
 		Long[] count = restTemplate.getForObject(userServiceURL+"/patients/patientcount", Long[].class);
 		List<Long> getCount = Arrays.asList(count);
-		for (Long count1 : getCount) {
-			log.info(count.toString());
-		}
 		return getCount;
 	}
 	@Override
@@ -81,8 +64,19 @@ public class AdminServiceImpl implements AdminService{
 	}
 	@Override
 	public Optional<UserDto> authenticate(UserDto user) {
-		// TODO Auto-generated method stub
 		return Optional.of(restTemplate.postForObject(userServiceURL+"auth/verify",user, UserDto.class));
+	}
+	@Override
+	public void editPatientStatus(List<Patient> allPatient) {
+			log.info("Inside Admin Service Mehod to edit patient status");
+		restTemplate.put(userServiceURL+"patient/editstatus", allPatient);
+		
+	}
+	@Override
+	public void editEmployeeStatus(List<Staff> allEmployee) {
+		log.info("Inside Admin Service Mehod to edit employee status");
+		restTemplate.put(userServiceURL+"employee/editstatus", allEmployee);
+		
 	}
 	
 

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.hateoas.mediatype.problem.Problem;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
@@ -64,17 +65,6 @@ public class AdminController {
 			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-	@PutMapping("patient/editstatus/{allPatientId}/{allPatientStatus}")
-	public ResponseEntity<?> editPatientStatus(@PathVariable long[] allPatientId,@PathVariable String[] allPatientStatus){
-		try {
-			adminService.editPatientStatus(allPatientId,allPatientStatus);
-			return new ResponseEntity<Patient>(HttpStatus.OK);
-		}
-		
-		catch(Exception e) {
-			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
 	@GetMapping("user-list")
 	public ResponseEntity<?> getAllUsers(){
 		log.info("fetching all staff details");
@@ -106,20 +96,6 @@ public class AdminController {
 				return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 	}
-	
-//	@PutMapping("/patient/deactivate/{id}")
-//	ResponseEntity<?> deactivatePatient(@PathVariable long id) {
-//		log.info("Admin COntroller DeactivatePatient method called");
-//		try {
-//		adminService.deactivatePatient(id);
-//		String msg = "Patient Deactivated..!";
-//		return new ResponseEntity<String>(msg,HttpStatus.CREATED);
-//		}
-//		catch(Exception e) {
-//			String msg = "Patient Status not Edited..!";
-//			return new ResponseEntity<String>(msg,HttpStatus.INTERNAL_SERVER_ERROR);	
-//		}
-//	}
 
 	@GetMapping("/patients/patientcount")
 	ResponseEntity<?> patientCount(){
@@ -140,5 +116,28 @@ public class AdminController {
 		}
 	}
 	
-	
+	@PutMapping("patient/editstatus")
+	public ResponseEntity<?> editPatientStatus(@RequestBody List<Patient> allPatient){
+		log.info("Inside Admin Controller to edit patient status");
+		try {
+			adminService.editPatientStatus(allPatient);
+			return new ResponseEntity<Patient>(HttpStatus.OK);
+		}
+		
+		catch(Exception e) {
+			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	@PutMapping("employee/editstatus")
+	public ResponseEntity<?> editEmployeeStatus(@RequestBody List<Staff> allEmployee){
+		log.info("Inside Admin Controller to edit employee status");
+		try {
+			adminService.editEmployeeStatus(allEmployee);
+			return new ResponseEntity<Patient>(HttpStatus.OK);
+		}
+		
+		catch(Exception e) {
+			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 }

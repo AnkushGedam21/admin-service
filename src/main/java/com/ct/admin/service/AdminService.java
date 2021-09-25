@@ -15,5 +15,6 @@ public interface AdminService {
 	public List<Long> getPatientCount();
 	public List<Long> getStaffCount();
 	public Optional<UserDto> authenticate(UserDto user);
-	public void editPatientStatus(long[] allPatientId, String[] allPatientStatus);
+	public void editPatientStatus(List<Patient> allPatient);
+	public void editEmployeeStatus(List<Staff> allEmployee);
 }
