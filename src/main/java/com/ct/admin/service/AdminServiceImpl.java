@@ -1,12 +1,25 @@
 package com.ct.admin.service;
 
 
+import java.lang.reflect.ParameterizedType;
+import java.net.URI;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
+
 import com.ct.admin.utility.Patient;
 import com.ct.admin.utility.Staff;
 import com.ct.admin.utility.UserDto;
@@ -27,29 +40,69 @@ public class AdminServiceImpl implements AdminService{
 
 	@Autowired
 	private RestTemplate restTemplate;
-	@Autowired
-	private GeneralService generalService;
 	String userServiceURL = "http://USER-SERVICE/";
-	public Staff[] getAllUsers(){
-		//log.info("from service all user data send");
-		return   restTemplate.getForObject(userServiceURL+"employees", Staff[].class);
-	}
-	public Patient[] getAllPatient(){
-		log.info("from service all patient details send");
-		return restTemplate.getForObject(userServiceURL+"patients", Patient[].class);
+	public Map<String, Object> getAllUsers(int page, int size,String columnName,String direction){
+		log.info("from service all user data send");
 		
+		ParameterizedTypeReference<PaginatedResponse<Staff>> responseType = new ParameterizedTypeReference<PaginatedResponse<Staff>>() { };
+		URI targetUrl = UriComponentsBuilder.fromUriString(userServiceURL)
+				.path("filteredemployees")
+				.queryParam("page", page)
+				.queryParam("size",size)
+				.queryParam("columnName",columnName)
+				.queryParam("direction", direction)
+				.build()
+				.toUri();
+	
+		ResponseEntity<PaginatedResponse<Staff>> result = restTemplate.exchange(targetUrl, HttpMethod.GET,null,responseType);
+		  //http://localhost:8082/filteredemployees?page=1&size=2
+		Page<Staff> pageStaff = result.getBody();
+		Map<String, Object> response = new HashMap<>();
+		response.put("staffs", pageStaff.getContent());
+		response.put("currentPage", pageStaff.getNumber());
+		response.put("totalItems", pageStaff.getTotalElements());
+		response.put("totalPages", pageStaff.getTotalPages());
+		response.put("last", pageStaff.isLast());
+		response.put("first", pageStaff.isFirst());
+		response.put("sort", pageStaff.getSort());
+		response.put("numberOfElements", pageStaff.getNumberOfElements());
+		response.put("number", pageStaff.getNumber());
+		response.put("empty", pageStaff.isEmpty());
+		response.put("totalElements", pageStaff.getTotalElements());
+		response.put("page", pageStaff.getNumber());
+		response.put("size", pageStaff.getSize());
+		
+		return response;
 	}
-	public Staff getOneUser(long userId) {
-		return restTemplate.getForObject(userServiceURL+"employees/"+userId, Staff.class);
-	}
-	public Patient getOnePatient(long patientId) {
-		return restTemplate.getForObject(userServiceURL+"patients/"+patientId, Patient.class);
-	}
-	public void activatePatient(long patientId) {
-		restTemplate.put(userServiceURL+"patients/activate/"+patientId, Patient.class);
-		Patient patient = restTemplate.getForObject(userServiceURL+"patients/"+patientId, Patient.class);
-		String response = generalService.sendMail(patient.getEmail());
-		log.info(response);
+	public Map<String, Object> getAllPatient(int page,int size,String columnName,String direction){
+		log.info("from service all patient details send");
+		ParameterizedTypeReference<PaginatedResponse<Patient>> responseType = new ParameterizedTypeReference<PaginatedResponse<Patient>>() { };
+		URI targetUrl = UriComponentsBuilder.fromUriString(userServiceURL)
+				.path("filteredpatients")
+				.queryParam("page", page)
+				.queryParam("size", size)
+				.queryParam("columnName",columnName)
+				.queryParam("direction", direction)
+				.build()
+				.toUri();
+		ResponseEntity<PaginatedResponse<Patient>> result = restTemplate.exchange(targetUrl, HttpMethod.GET,null,responseType);
+		List<Patient> patientList = result.getBody().getContent();    //http://localhost:8082/filteredpatients?page=1&size=2
+		Map<String, Object> response = new HashMap<>();
+		Page<Patient> pagePatient= result.getBody();
+		response.put("patients", patientList);
+		response.put("currentPage", pagePatient.getNumber());
+		response.put("totalItems", pagePatient.getTotalElements());
+		response.put("totalPages", pagePatient.getTotalPages());
+		response.put("last", pagePatient.isLast());
+		response.put("first", pagePatient.isFirst());
+		response.put("sort", pagePatient.getSort());
+		response.put("numberOfElements", pagePatient.getNumberOfElements());
+		response.put("number", pagePatient.getNumber());
+		response.put("empty", pagePatient.isEmpty());
+		response.put("totalElements", pagePatient.getTotalElements());
+		response.put("page", pagePatient.getNumber());
+		response.put("size", pagePatient.getSize());
+		return response;
 	}
 	
 	@Override
