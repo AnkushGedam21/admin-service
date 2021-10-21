@@ -1,25 +1,17 @@
 package com.ct.admin.controller;
 
-import java.util.Arrays;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.query.Param;
-import org.springframework.hateoas.mediatype.problem.Problem;
-import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.Mapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,10 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ct.admin.service.AdminService;
 import com.ct.admin.utility.Patient;
 import com.ct.admin.utility.Staff;
-import com.ct.admin.utility.UserDto;
-import com.sun.xml.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
 
-import lombok.extern.slf4j.Slf4j;
 
 /*
  * @author Ankush Gedam
@@ -44,13 +33,12 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @CrossOrigin("*")
 @RequestMapping("admin")
-@Slf4j
 public class AdminController {
-
 	@Autowired
 	private AdminService adminService;
-
-
+	
+	@Autowired
+	private Logger log;
 	@GetMapping("patient-list")
 	public ResponseEntity<Map<String, Object>> getAllPatient(
 			@RequestParam(defaultValue = "0") int page,
@@ -79,8 +67,6 @@ public class AdminController {
 			
 	{
 		log.info("fetching all staff details");
-		log.info(columnName);
-		log.info(direction);
 		try {
 			return new ResponseEntity<>(adminService.getAllUsers(page,size,columnName,direction),HttpStatus.OK);
 		}
@@ -90,18 +76,20 @@ public class AdminController {
 	}
 
 	@GetMapping("/patients/patientcount")
-	ResponseEntity<?> patientCount(){
+	public ResponseEntity<Map<String, Object>> patientCount(){
+		log.info("Fetching Total patient count");
 		try {
-			return new ResponseEntity<List<Long>>(adminService.getPatientCount(),HttpStatus.OK);
+			return new ResponseEntity<>(adminService.getPatientCount(),HttpStatus.OK);
 		}
 		catch(Exception e) {
 			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 	@GetMapping("/user/usercount")
-	ResponseEntity<?> staffCount(){
+	public ResponseEntity<Map<String, Object>> staffCount(){
+		log.info("Fetching Total Staff count");
 		try {
-			return new ResponseEntity<List<Long>>(adminService.getStaffCount(),HttpStatus.OK);
+			return new ResponseEntity<>(adminService.getStaffCount(),HttpStatus.OK);
 		}
 		catch(Exception e) {
 			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
@@ -114,11 +102,11 @@ public class AdminController {
 	 * patient status
 	 */
 	@PutMapping("patient/editstatus")
-	public ResponseEntity<?> editPatientStatus(@RequestBody List<Patient> allPatient){
+	public ResponseEntity<Map<String, Object>> editPatientStatus(@RequestBody List<Patient> allPatient){
 		log.info("Inside Admin Controller to edit patient status");
 		try {
-			adminService.editPatientStatus(allPatient);
-			return new ResponseEntity<Patient>(HttpStatus.OK);
+			
+			return new ResponseEntity<>(adminService.editPatientStatus(allPatient),HttpStatus.OK);
 		}
 
 		catch(Exception e) {
@@ -132,12 +120,13 @@ public class AdminController {
 	 * and return the Http status
 	 */
 	@PutMapping("employee/editstatus")
-	public ResponseEntity<?> editEmployeeStatus(@RequestBody List<Staff> allEmployee){
+	public ResponseEntity<Map<String, Object>> editEmployeeStatus(@RequestBody List<Staff> allEmployee){
 		log.info("Inside Admin Controller to edit employee status");
-		try {
-			adminService.editEmployeeStatus(allEmployee);
-			return new ResponseEntity<Patient>(HttpStatus.OK);
-		}
+		log.info(allEmployee.toString());
+		try{
+			
+			return new ResponseEntity<>(adminService.editEmployeeStatus(allEmployee),HttpStatus.OK);
+	}
 
 		catch(Exception e) {
 			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
