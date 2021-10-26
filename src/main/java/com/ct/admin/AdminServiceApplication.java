@@ -17,7 +17,7 @@ import org.springframework.web.client.RestTemplate;
 @SpringBootApplication
 public class AdminServiceApplication {
 
-	private Logger logger = LogManager.getLogger(AdminServiceApplication.class);
+	
 	public static void main(String[] args) {
 		
 		SpringApplication.run(AdminServiceApplication.class, args);
@@ -32,7 +32,7 @@ public class AdminServiceApplication {
 	
 	@Bean
 	public Logger log() {
-		return logger;
+		return LogManager.getLogger(AdminServiceApplication.class);
 	}
 	
 }

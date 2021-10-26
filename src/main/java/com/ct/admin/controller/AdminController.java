@@ -32,7 +32,7 @@ import com.ct.admin.utility.Staff;
 
 @RestController
 @CrossOrigin("*")
-@RequestMapping("admin")
+@RequestMapping("admin/")
 public class AdminController {
 	@Autowired
 	private AdminService adminService;
@@ -132,4 +132,76 @@ public class AdminController {
 			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+	@GetMapping("filter/patient-list")
+	public ResponseEntity<Map<String, Object>> getFilteredPatient(
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "5") int size,
+			@RequestParam(defaultValue = "ASC") String direction,
+			@RequestParam String filterValue
+			){
+		log.info("fetching all patient details");
+		
+		try {
+			return new ResponseEntity<>(adminService.getFilteredPatient(page,size,direction,filterValue),HttpStatus.OK);
+			
+			 } catch(Exception e) { return new
+			  ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+			 }	 
+	}
+	
+	@GetMapping("filter/user-list")
+	public ResponseEntity<Map<String, Object>> getFilterStaffs(
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "5") int size,
+			@RequestParam(defaultValue = "ASC") String direction,
+			@RequestParam (defaultValue = "") String filterValue)
+			
+	{
+		log.info("fetching all staff details");
+		try {
+			return new ResponseEntity<>(adminService.getFilteredStaff(page,size,direction,filterValue),HttpStatus.OK);
+		}
+		catch(Exception e) {
+			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	@GetMapping("patient/allpatients")
+	public ResponseEntity<Map<String,Object>> getAllPatient(){
+		//try {
+			return new ResponseEntity<>(adminService.getAllPatient(),HttpStatus.OK);
+//		}
+//		catch(Exception e) {
+//			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+//		}
+	}
+	@GetMapping("patient/allactivepatients")
+	public ResponseEntity<Map<String,Object>> getAllActivePatient(){
+		try {
+			return new ResponseEntity<>(adminService.getAllActivePatient(),HttpStatus.OK);
+		}
+		catch(Exception e) {
+			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	@GetMapping("employees/allemployees")
+	public ResponseEntity<Map<String,Object>> getAllEmployee(){
+		try {
+			return new ResponseEntity<>(adminService.getAllEmployee(),HttpStatus.OK);
+		}
+		catch(Exception e) {
+			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	@GetMapping("employees/allactiveemployees")
+	public ResponseEntity<Map<String,Object>> getAllActiveEmployee(){
+		try {
+			return new ResponseEntity<>(adminService.getAllActiveEmployee(),HttpStatus.OK);
+		}
+		catch(Exception e) {
+			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+
 }
