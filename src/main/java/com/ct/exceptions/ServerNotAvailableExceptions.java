@@ -1,9 +1,12 @@
 package com.ct.exceptions;
 
-public class ServerNotAvailableExceptions extends IllegalStateException {
-	/**
-	 * 
-	 */
+import org.springframework.web.client.RestClientException;
+
+/**
+ * @Ankush Gedam
+ */
+public class ServerNotAvailableExceptions extends RestClientException {
+	
 	private static final long serialVersionUID = 1L;
 	private final static String server_message="SERVER NOT AVALABLE";
 	

@@ -1,6 +1,7 @@
 package com.ct.admin.service;
 
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -13,9 +14,15 @@ public class GeneralServiceImpl implements GeneralService {
 	}
 
 	@Override
-	public int getOtp() {
-		Random random = new Random();
-		return random.nextInt(999999 - 100000 + 1) + 100000;
+	public String getOtp() {
+//		Random random = new Random();
+		//return random.nextInt(999999 - 100000 + 1) + 100000;
+//		String password = new Random().ints(10, 33, 122).mapToObj(i -> String.valueOf((char)i)).collect(Collectors.joining());
+//	
+		String password = new Random().ints(10, 33, 122).collect(StringBuilder::new,
+		        StringBuilder::appendCodePoint, StringBuilder::append)
+		        .toString();
+		return password;
 	}
 
 }

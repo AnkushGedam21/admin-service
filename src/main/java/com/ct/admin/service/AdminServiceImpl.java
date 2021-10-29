@@ -45,7 +45,11 @@ public class AdminServiceImpl implements AdminService{
 	private Logger log;
 	@Autowired
 	private RestTemplate restTemplate;
-	String userServiceURL = "http://USER-SERVICE/";
+	
+	@Autowired
+	private GeneralService generalService;
+	
+	String userServiceURL = "http://USER-SERVICE/users/";
 
 	@Retry(name = "user",fallbackMethod = "fallbackCall")
 	public Map<String, Object> getAllUsers(int page, int size,String columnName,String direction){
@@ -61,7 +65,7 @@ public class AdminServiceImpl implements AdminService{
 				.build()
 				.toUri();
 
-		ResponseEntity<PaginatedResponse<Staff>> result = restTemplate.exchange(targetUrl, HttpMethod.GET,null,responseType);
+		ResponseEntity<PaginatedResponse<Staff>> result = Optional.of(restTemplate.exchange(targetUrl, HttpMethod.GET,null,responseType)).orElseThrow(() ->  new ServerNotAvailableExceptions());
 		Page<Staff> pageStaff = result.getBody();
 		Map<String, Object> response = new HashMap<>();
 		response.put("staffs", pageStaff.getContent());
@@ -118,16 +122,6 @@ public class AdminServiceImpl implements AdminService{
 	public Map<String, Object> getPatientCount() {
 		log.info("Inside Admin Service Mehod to edit patient status");
 		Long[] count = Optional.of(restTemplate.getForObject(userServiceURL+"/patients/patientcount", Long[].class)).orElseThrow(()-> new ServerNotAvailableExceptions());
-		
-		/*
-		 * Supplier<Long[]> count= ()->
-		 * restTemplate.getForObject(userServiceURL+"/patients/patientcount",
-		 * Long[].class); RetryConfig config = RetryConfig.ofDefaults(); RetryRegistry
-		 * registry = RetryRegistry.of(config); io.github.resilience4j.retry.Retry retry
-		 * = registry.retry("flightSearchService", config); Supplier<Long[]> retrycount
-		 * = io.github.resilience4j.retry.Retry.decorateSupplier(retry, count);
-		 */
-		
 		Map<String, Object> response = new HashMap<>();
 		response.put("count", count);
 		return response;
@@ -151,6 +145,7 @@ public class AdminServiceImpl implements AdminService{
 		Map<String, Object> response = new HashMap<>();
 		restTemplate.put(userServiceURL+"patient/editstatus", allPatient);
 		String msg="Patient Status has been Edited";
+		log.info(generalService.getOtp());
 		response.put("msg", msg);
 		return response;
 	}
@@ -275,13 +270,13 @@ public class AdminServiceImpl implements AdminService{
 		response.put("activeStaffs", activeStaffs);
 			return response;
 	}
-	
 	public Map<String, Object> fallbackCall( Exception e){
-		log.info("Exception  called");
+		log.info("Custom Exception  called");
+		
 		Map<String,Object> response = new HashMap<String, Object>();
-		response.put("error", e.getMessage());
-		response.put("class", e.getClass());
+		response.put("error", new ServerNotAvailableExceptions().getMessage());
 		return response;
 	}
+	
 
 }
