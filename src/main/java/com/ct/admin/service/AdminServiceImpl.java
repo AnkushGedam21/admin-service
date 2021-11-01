@@ -3,9 +3,7 @@ package com.ct.admin.service;
 
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,16 +14,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.ct.admin.utility.Patient;
 import com.ct.admin.utility.Staff;
+import com.ct.exceptions.ContentNotFound;
 import com.ct.exceptions.ServerNotAvailableExceptions;
 
 import io.github.resilience4j.retry.annotation.Retry;
@@ -65,8 +61,8 @@ public class AdminServiceImpl implements AdminService{
 				.build()
 				.toUri();
 
-		ResponseEntity<PaginatedResponse<Staff>> result = Optional.of(restTemplate.exchange(targetUrl, HttpMethod.GET,null,responseType)).orElseThrow(() ->  new ServerNotAvailableExceptions());
-		Page<Staff> pageStaff = result.getBody();
+		ResponseEntity<PaginatedResponse<Staff>> result = restTemplate.exchange(targetUrl, HttpMethod.GET,null,responseType);
+		Page<Staff> pageStaff =  Optional.of(result.getBody()).orElseThrow(ContentNotFound::new);
 		Map<String, Object> response = new HashMap<>();
 		response.put("staffs", pageStaff.getContent());
 		response.put("currentPage", pageStaff.getNumber());
@@ -98,7 +94,7 @@ public class AdminServiceImpl implements AdminService{
 				.build()
 				.toUri();
 		ResponseEntity<PaginatedResponse<Patient>> result = restTemplate.exchange(targetUrl, HttpMethod.GET,null,responseType);
-		List<Patient> patientList = result.getBody().getContent();    //http://localhost:8082/filteredpatients?page=1&size=2
+		List<Patient> patientList = Optional.of(result.getBody().getContent()).orElseThrow(NullPointerException::new);
 		Map<String, Object> response = new HashMap<>();
 		Page<Patient> pagePatient= result.getBody();
 		response.put("patients", patientList);
@@ -121,7 +117,7 @@ public class AdminServiceImpl implements AdminService{
 	@Retry(name = "user",fallbackMethod = "fallbackCall")
 	public Map<String, Object> getPatientCount() {
 		log.info("Inside Admin Service Mehod to edit patient status");
-		Long[] count = Optional.of(restTemplate.getForObject(userServiceURL+"/patients/patientcount", Long[].class)).orElseThrow(()-> new ServerNotAvailableExceptions());
+		Long[] count = restTemplate.getForObject(userServiceURL+"/patients/patientcount", Long[].class);
 		Map<String, Object> response = new HashMap<>();
 		response.put("count", count);
 		return response;
@@ -177,7 +173,7 @@ public class AdminServiceImpl implements AdminService{
 		ResponseEntity<PaginatedResponse<Staff>> result = restTemplate.exchange(targetUrl, HttpMethod.GET,null,responseType);
 		Page<Staff> pageStaff = result.getBody();
 		Map<String, Object> response = new HashMap<>();
-		response.put("staffs", pageStaff.getContent());
+		response.put("staffs", Optional.of(pageStaff.getContent()).orElseThrow(ContentNotFound::new));
 		response.put("currentPage", pageStaff.getNumber());
 		response.put("totalItems", pageStaff.getTotalElements());
 		response.put("totalPages", pageStaff.getTotalPages());
@@ -200,6 +196,7 @@ public class AdminServiceImpl implements AdminService{
 	@Retry(name = "user",fallbackMethod = "fallbackCall")
 	public Map<String, Object> getFilteredPatient(int page, int size,String direction,String filterValue) {
 		log.info("from service all patient details send");
+		Map<String, Object> response = new HashMap<>();
 		ParameterizedTypeReference<PaginatedResponse<Patient>> responseType = new ParameterizedTypeReference<PaginatedResponse<Patient>>() { };
 		URI targetUrl = UriComponentsBuilder.fromUriString(userServiceURL)
 				.path("patient/filteredpatients")
@@ -209,10 +206,10 @@ public class AdminServiceImpl implements AdminService{
 				.queryParam("filterValue", filterValue)
 				.build()
 				.toUri();
-		ResponseEntity<PaginatedResponse<Patient>> result = restTemplate.exchange(targetUrl, HttpMethod.GET,null,responseType);
-		List<Patient> patientList = result.getBody().getContent();    //http://localhost:8082/filteredpatients?page=1&size=2
-		Map<String, Object> response = new HashMap<>();
-		Page<Patient> pagePatient= result.getBody();
+		Optional<ResponseEntity<PaginatedResponse<Patient>>> result = Optional.ofNullable(restTemplate.exchange(targetUrl, HttpMethod.GET,null,responseType));
+		if(result.isPresent()) {
+		List<Patient> patientList =Optional.of(result.get().getBody().getContent()).orElseThrow(ContentNotFound::new);    
+		Page<Patient> pagePatient= result.get().getBody();
 		response.put("patients", patientList);
 		response.put("currentPage", pagePatient.getNumber());
 		response.put("totalItems", pagePatient.getTotalElements());
@@ -226,6 +223,10 @@ public class AdminServiceImpl implements AdminService{
 		response.put("totalElements", pagePatient.getTotalElements());
 		response.put("page", pagePatient.getNumber());
 		response.put("size", pagePatient.getSize());
+		}
+		else {
+			result.orElseThrow(ServerNotAvailableExceptions::new);
+		}
 		return response;
 	}
 
@@ -271,9 +272,9 @@ public class AdminServiceImpl implements AdminService{
 			return response;
 	}
 	public Map<String, Object> fallbackCall( Exception e){
-		log.info("Custom Exception  called");
+		log.error(e.getMessage());
 		
-		Map<String,Object> response = new HashMap<String, Object>();
+		Map<String,Object> response = new HashMap();
 		response.put("error", new ServerNotAvailableExceptions().getMessage());
 		return response;
 	}

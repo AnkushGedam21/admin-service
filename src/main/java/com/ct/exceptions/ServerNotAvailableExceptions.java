@@ -8,10 +8,10 @@ import org.springframework.web.client.RestClientException;
 public class ServerNotAvailableExceptions extends RestClientException {
 	
 	private static final long serialVersionUID = 1L;
-	private final static String server_message="SERVER NOT AVALABLE";
+	private final static String SERVER_NOT_AVAILABLE="SERVER NOT AVALABLE";
 	
 	public ServerNotAvailableExceptions() {
-		super(server_message);
+		super(SERVER_NOT_AVAILABLE);
 	}
 
 	public ServerNotAvailableExceptions(String message) {

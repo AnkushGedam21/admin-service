@@ -22,7 +22,6 @@ import com.ct.admin.utility.Staff;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
@@ -44,6 +43,8 @@ public class AdminController {
 	@Autowired
 	private Logger log;
 	
+	ResponseEntity<Map<String, Object>> response;
+	
 	@Operation(summary = "fetch all Patient List", description = "This API is used to fetch all patient list which accept the param"
 			+ " page,size,columnName and directon for sortng pagination return the pagnated response")
 	@ApiResponses(value = {
@@ -64,13 +65,13 @@ public class AdminController {
 		log.info("fetching all patient details");
 		
 		try {
-			return new ResponseEntity<>(adminService.getAllPatient(page,size,columnName,direction),HttpStatus.OK);
+			response = new ResponseEntity<>(adminService.getAllPatient(page,size,columnName,direction),HttpStatus.OK);
 			
-			 } catch(Exception e) { return new
-			  ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+			 } catch(Exception e) { 
+				response = new ResponseEntity<>( HttpStatus.INTERNAL_SERVER_ERROR);
 			 }
 		
-			 
+			 return response;
 	}
 	@Operation(summary = "fetch all Employee List", description = "This API is used to fetch all Employees Details which accept the param"
 			+ " page,size,columnName and directon for sortng pagination return the paginated response")
@@ -91,11 +92,12 @@ public class AdminController {
 	{
 		log.info("Fetching all staff details from Admin Controller");
 		try {
-			return new ResponseEntity<>(adminService.getAllUsers(page,size,columnName,direction),HttpStatus.OK);
+			response = new ResponseEntity<>(adminService.getAllUsers(page,size,columnName,direction),HttpStatus.OK);
 		}
 		catch(Exception e) {
-			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+			response = new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+		return response;
 	}
 	@Operation(summary = "fetch Count of Patient", description = "This API is used to fetch count of the patient "
 			+ " It will return total patient, active patient count by their status")
@@ -110,11 +112,12 @@ public class AdminController {
 	public ResponseEntity<Map<String, Object>> patientCount(){
 		log.info("Fetching Total patient count");
 		try {
-			return new ResponseEntity<>(adminService.getPatientCount(),HttpStatus.OK);
+			response = new ResponseEntity<>(adminService.getPatientCount(),HttpStatus.OK);
 		}
 		catch(Exception e) {
-			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+			response = new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+		return response;
 	}
 	@Operation(summary = "fetch all Patient count", description = "This API is used to fetch all staff count "
 			+ " which return count of total staff and active staff based on status")
@@ -129,11 +132,12 @@ public class AdminController {
 	public ResponseEntity<Map<String, Object>> staffCount(){
 		log.info("Fetching Total Staff count");
 		try {
-			return new ResponseEntity<>(adminService.getStaffCount(),HttpStatus.OK);
+			response = new ResponseEntity<>(adminService.getStaffCount(),HttpStatus.OK);
 		}
 		catch(Exception e) {
-			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+			response = new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+		return response;
 	}
 
 	/*
@@ -155,12 +159,13 @@ public class AdminController {
 		log.info("Inside Admin Controller to edit patient status");
 		try {
 			
-			return new ResponseEntity<>(adminService.editPatientStatus(allPatient),HttpStatus.OK);
+			response = new ResponseEntity<>(adminService.editPatientStatus(allPatient),HttpStatus.OK);
 		}
 
 		catch(Exception e) {
-			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+			response = new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+		return response;
 	}
 
 	/*
@@ -180,15 +185,15 @@ public class AdminController {
 	@PutMapping("employee/editstatus")
 	public ResponseEntity<Map<String, Object>> editEmployeeStatus(@RequestBody List<Staff> allEmployee){
 		log.info("Inside Admin Controller to edit employee status");
-		log.info(allEmployee.toString());
 		try{
 			
-			return new ResponseEntity<>(adminService.editEmployeeStatus(allEmployee),HttpStatus.OK);
+			response = new ResponseEntity<>(adminService.editEmployeeStatus(allEmployee),HttpStatus.OK);
 	}
 
 		catch(Exception e) {
-			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+			response = new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+		return response;
 	}
 	@Operation(summary = "fetch all Patient filtered List", description = "This API is used to fetch all patient filtered list which accept the param"
 			+ " page,size, directon and input for filtering sortng pagination")
@@ -209,11 +214,12 @@ public class AdminController {
 		log.info("fetching all patient details");
 		
 		try {
-			return new ResponseEntity<>(adminService.getFilteredPatient(page,size,direction,filterValue),HttpStatus.OK);
+			response = new ResponseEntity<>(adminService.getFilteredPatient(page,size,direction,filterValue),HttpStatus.OK);
 			
-			 } catch(Exception e) { return new
-			  ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
-			 }	 
+			 } catch(Exception e) { 
+				 response = new  ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			 }	
+		return response;
 	}
 	@Operation(summary = "fetch all filtered employees List", description = "This API is used to fetch all filtered employees list which accept the param"
 			+ " page,size,directon and input for filtering sortng pagination")
@@ -235,11 +241,12 @@ public class AdminController {
 	{
 		log.info("fetching all staff details");
 		try {
-			return new ResponseEntity<>(adminService.getFilteredStaff(page,size,direction,filterValue),HttpStatus.OK);
+			response = new ResponseEntity<>(adminService.getFilteredStaff(page,size,direction,filterValue),HttpStatus.OK);
 		}
 		catch(Exception e) {
-			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+			response = new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+		return response;
 	}
 	@Operation(summary = "fetch all Patient List", description = "This API is used to fetch all patient list")
 	@ApiResponses(value = {
@@ -252,11 +259,12 @@ public class AdminController {
 	@GetMapping("patient/allpatients")
 	public ResponseEntity<Map<String,Object>> getAllPatient(){
 		try {
-			return new ResponseEntity<>(adminService.getAllPatient(),HttpStatus.OK);
+			response = new ResponseEntity<>(adminService.getAllPatient(),HttpStatus.OK);
 		}
 		catch(Exception e) {
-			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+			response = new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+		return response;
 	}
 	@Operation(summary = "fetch all active Patient List", description = "This API is used to fetch all active patient list ")
 	@ApiResponses(value = {
@@ -269,11 +277,12 @@ public class AdminController {
 	@GetMapping("patient/allactivepatients")
 	public ResponseEntity<Map<String,Object>> getAllActivePatient(){
 		try {
-			return new ResponseEntity<>(adminService.getAllActivePatient(),HttpStatus.OK);
+			response = new ResponseEntity<>(adminService.getAllActivePatient(),HttpStatus.OK);
 		}
 		catch(Exception e) {
-			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+			response = new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+		return response;
 	}
 	@Operation(summary = "fetch all staff List", description = "This API is used to fetch all staff list ")
 	@ApiResponses(value = {
@@ -286,11 +295,12 @@ public class AdminController {
 	@GetMapping("employees/allemployees")
 	public ResponseEntity<Map<String,Object>> getAllEmployee(){
 		try {
-			return new ResponseEntity<>(adminService.getAllEmployee(),HttpStatus.OK);
+			response = new ResponseEntity<>(adminService.getAllEmployee(),HttpStatus.OK);
 		}
 		catch(Exception e) {
-			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+			response = new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+		return response;
 	}
 	@Operation(summary = "fetch all Active Staff List", description = "This API is used to fetch all Active Staff list")
 	@ApiResponses(value = {
@@ -303,11 +313,12 @@ public class AdminController {
 	@GetMapping("employees/allactiveemployees")
 	public ResponseEntity<Map<String,Object>> getAllActiveEmployee(){
 		try {
-			return new ResponseEntity<>(adminService.getAllActiveEmployee(),HttpStatus.OK);
+			response = new ResponseEntity<>(adminService.getAllActiveEmployee(),HttpStatus.OK);
 		}
 		catch(Exception e) {
-			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+			response = new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+		return response;
 	}
 
 
